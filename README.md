@@ -40,11 +40,9 @@ Este projeto Django implementa um sistema para gerenciar filmes e gêneros, incl
 ### Instalação
 
 1. Clone o repositório:
-   // TODO: Adicionar o link do repositório
-
    ```bash
-   git clone https://github.com/your-repo.git
-   cd your-repo
+   git clone git@github.com:AllanFelipeReis/movie-management-system.git
+   cd movie-management-system
    ```
 
 2. Instale as dependências:
