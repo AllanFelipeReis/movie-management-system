@@ -1,0 +1,234 @@
+<!-- templates/dashboard.html -->
+<!DOCTYPE html>
+<html lang="pt-br">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Dashboard de Filmes</title>
+        {% load static %}
+        <!-- Importar Bootstrap e o CSS personalizado -->
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+        />
+
+        <style>
+            .navbar {
+                position: fixed;
+                top: 0;
+                width: 100%;
+                z-index: 1000;
+                background-color: #343a40;
+            }
+
+            .navbar a {
+                color: white;
+                margin-left: 20px;
+            }
+
+            .navbar a.btn-light {
+                color: var(--bs-btn-color);
+            }
+
+            body {
+                padding-top: 60px;
+                background-color: #f4f4f4;
+                font-family: Arial, sans-serif;
+            }
+
+            .container {
+                margin-top: 20px;
+            }
+
+            h1,
+            h2 {
+                text-align: center;
+            }
+
+            .chart-container {
+                width: 80%;
+                margin: 0 auto;
+            }
+
+            .movie-listing {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 15px;
+            }
+
+            .movie-card {
+                background-color: #fff;
+                border: 1px solid #ddd;
+                border-radius: 5px;
+                text-align: center;
+                padding: 10px;
+                width: 300px;
+            }
+
+            .movie-card img {
+                width: 100%;
+                height: auto;
+                border-radius: 5px;
+            }
+
+            .movie-title {
+                margin-top: 10px;
+                font-size: 16px;
+                font-weight: bold;
+            }
+
+            @media (max-width: 768px) {
+                .movie-card {
+                    width: 120px;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <nav class="navbar navbar-dark bg-dark">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#">Dashboard de Filmes</a>
+                <a href="/admin/" class="btn btn-light">Acessar Admin</a>
+            </div>
+        </nav>
+
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h2>Total de Filmes</h2>
+                            <p class="display-4">{{ total_movies }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h2>Total de Gêneros</h2>
+                            <p class="display-4">{{ total_genres }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chart-container my-4">
+                <h2>Filmes por Gênero</h2>
+                <canvas id="genresChart"></canvas>
+            </div>
+
+            <div class="chart-container my-4">
+                <h2>Top 10 Filmes por Popularidade</h2>
+                <canvas id="topMoviesChart"></canvas>
+            </div>
+
+            <div class="chart-container my-4">
+                <h2>Data de Lançamento vs Popularidade</h2>
+                <canvas id="releaseDatePopularityChart"></canvas>
+            </div>
+
+            <div class="my-4">
+                <h2 class="text-center">Lançamentos</h2>
+                <div class="movie-listing">
+                    {% for movie in movies %}
+                    <div class="movie-card">
+                        <img
+                            src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}"
+                            class="card-img-top movie-poster"
+                            alt="{{ movie.title }}"
+                        />
+                        <div class="movie-title">{{ movie.title }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script>
+            // Gráfico de Gêneros
+            const genresCtx = document
+                .getElementById("genresChart")
+                .getContext("2d");
+            const genresChart = new Chart(genresCtx, {
+                type: "bar",
+                data: {
+                    labels: {{ genres_names|safe }},
+                    datasets: [
+                        {
+                            label: "Número de Filmes por Gênero",
+                            data: {{ genres_counts|safe }},
+                            backgroundColor: "rgba(75, 192, 192, 0.2)",
+                            borderColor: "rgba(75, 192, 192, 1)",
+                            borderWidth: 1,
+                        },
+                    ],
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                        },
+                    },
+                },
+            });
+
+            // Gráfico dos Top 10 Filmes
+            const topMoviesCtx = document
+                .getElementById("topMoviesChart")
+                .getContext("2d");
+            const topMoviesChart = new Chart(topMoviesCtx, {
+                type: "bar",
+                data: {
+                    labels: {{ top_movies_titles|safe }},
+                    datasets: [
+                        {
+                            label: "Popularidade",
+                            data: {{ top_movies_popularity|safe }},
+                            backgroundColor: "rgba(255, 99, 132, 0.2)",
+                            borderColor: "rgba(255, 99, 132, 1)",
+                            borderWidth: 1,
+                        },
+                    ],
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                        },
+                    },
+                },
+            });
+
+            // Gráfico de Comparação
+            const releaseDatePopularityCtx = document.getElementById('releaseDatePopularityChart').getContext('2d');
+            const releaseDatePopularityChart = new Chart(releaseDatePopularityCtx, {
+                type: 'line',
+                data: {
+                    labels: {{ release_years|safe }},  // Datas de lançamento
+                    datasets: [{
+                        label: 'Popularidade',
+                        data: {{ avg_popularity|safe }},  // Valores de popularidade
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.1  // Suaviza as linhas do gráfico
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grace: '5%'
+                        },
+                        
+                    }
+                }
+            });
+        </script>
+    </body>
+</html>
