@@ -43,7 +43,7 @@ class Movie(SoftDeleteModel):
     popularity = models.FloatField()
     vote_average = models.FloatField()
     vote_count = models.IntegerField()
-    poster_path = models.CharField(max_length=255)
+    poster_path = models.CharField(max_length=255, null=True)
     genre = models.ManyToManyField(Genre)
     
     objects = SoftDeleteManager()

@@ -7,6 +7,7 @@ import aiohttp
 import asyncio
 from asgiref.sync import sync_to_async
 from django.conf import settings
+import re
 
 # Cria o logger
 logger = logging.getLogger('myapp')
@@ -25,7 +26,7 @@ class Command(BaseCommand):
     
     def load_and_clean_data(self):
         csv_file_path = os.path.join(os.path.dirname(__file__), 'movie.csv')
-        df = pd.read_csv(csv_file_path)
+        df = pd.read_csv(csv_file_path, encoding='utf-8')
         
         # 1. Remover a coluna 'Unnamed: 0'
         df_cleaned = df.drop(columns=['Unnamed: 0'])
@@ -39,8 +40,15 @@ class Command(BaseCommand):
         # 4. Remover valores nulos (caso alguma data tenha falhado na conversão)
         df_cleaned = df_cleaned.dropna()
 
+        # 5. Limpar a coluna 'title'
+        df_cleaned['title'] = df_cleaned['title'].apply(self.clean_title)
+
         logger.info(f"Dados limpos. Total de registros: {len(df_cleaned)}")
         return df_cleaned
+    
+    def clean_title(self, title):
+        cleaned_title = re.sub(r'[^a-zA-Z0-9À-ÿ\s:]', '', title)
+        return cleaned_title.strip()   
 
     async def enrich_data(self, df):
         async with aiohttp.ClientSession() as session:
@@ -52,13 +60,27 @@ class Command(BaseCommand):
 
             # Criar ou atualizar os registros no banco de dados
             for index, movie_details in enumerate(enriched_data):
-                await self.create_or_update_movie(df.iloc[index], movie_details)
+                if movie_details:
+                    await self.create_or_update_movie(df.iloc[index], movie_details)
+                else:
+                    logger.warning(f"Dados não disponíveis para o filme ID {df.iloc[index]['id']}. O filme não será salvo.")
 
-    async def fetch_data(self, session, movie_id):
+    async def fetch_data(self, session, movie_id):        
         api_url = f"https://api.themoviedb.org/3/movie/{movie_id}?api_key={API_KEY}"
         logger.info(f"Buscando dados para o filme ID {movie_id}")
-        async with session.get(api_url) as response:
-            return await response.json()
+        
+        try:
+            async with session.get(api_url) as response:
+                response_data = await response.json()
+                
+                if response.status != 200:
+                    logger.error(f"Erro ao buscar dados para o filme ID {movie_id}: {response_data.get('status_message', 'Erro desconhecido')}")
+                    return None
+                
+                return response_data
+        except Exception as e:
+            logger.error(f"Erro ao acessar a API para o filme ID {movie_id}: {str(e)}")
+            return None
 
     @sync_to_async
     def create_or_update_movie(self, row, movie_details):
