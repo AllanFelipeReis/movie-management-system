@@ -1,0 +1,7 @@
+venv/
+__pycache__/
+*.py[cod]
+.env
+custom_logs.log
+db.sqlite3
+django_errors.log
