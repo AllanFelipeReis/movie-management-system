@@ -4,79 +4,88 @@ Este projeto Django implementa um sistema para gerenciar filmes e gêneros, incl
 
 ## Funcionalidades
 
-- **Soft Delete**: Em vez de excluir permanentemente os registros, eles são marcados como excluídos e podem ser restaurados.
-- **Timestamps**: Rastreamento dos campos created_at e updated_at para todos os registros de filmes e gêneros.
-- **Integração Assíncrona com API**: Enriquecimento dos dados de filmes com informações de uma API externa (The Movie Database - TMDb)..
-- **Relacionamento Many-to-Many**: Filmes podem ter vários gêneros e gêneros podem ser compartilhados por vários filmes.
+-   **Soft Delete**: Em vez de excluir permanentemente os registros, eles são marcados como excluídos e podem ser restaurados.
+-   **Timestamps**: Rastreamento dos campos created_at e updated_at para todos os registros de filmes e gêneros.
+-   **Integração Assíncrona com API**: Enriquecimento dos dados de filmes com informações de uma API externa (The Movie Database - TMDb)..
+-   **Relacionamento Many-to-Many**: Filmes podem ter vários gêneros e gêneros podem ser compartilhados por vários filmes.
 
 ## Modelos
 
 ### 1. `Movie`
 
-- `id_the_movie`: Inteiro (ID do filme da TMDb)
-- `title`: String (Título do filme)
-- `release_date`: Data (Data de lançamento)
-- `overview`: Texto (Sinopse do filme)
-- `popularity`: Float (Popularidade do filme)
-- `vote_average`: Float (Média de votos)
-- `vote_count`: Inteiro (Número de votos)
-- `poster_path`: String (URL do pôster do filme)
-- **Relações**: Many-to-Many com `Genre`
-- **Soft delete**: Implementado através do campo booleano `is_deleted`
+-   `id_the_movie`: Inteiro (ID do filme da TMDb)
+-   `title`: String (Título do filme)
+-   `release_date`: Data (Data de lançamento)
+-   `overview`: Texto (Sinopse do filme)
+-   `popularity`: Float (Popularidade do filme)
+-   `vote_average`: Float (Média de votos)
+-   `vote_count`: Inteiro (Número de votos)
+-   `poster_path`: String (URL do pôster do filme)
+-   **Relações**: Many-to-Many com `Genre`
+-   **Soft delete**: Implementado através do campo booleano `is_deleted`
 
 ### 2. `Genre`
 
-- `name`: String (Nome do gênero)
-- **Soft delete**: Implementado através do campo booleano `is_deleted`
+-   `name`: String (Nome do gênero)
+-   **Soft delete**: Implementado através do campo booleano `is_deleted`
 
 ## Configuração
 
 ### Pré-requisitos
 
-- Python 3.x
-- Django 3.x
-- PostgreSQL (ou SQLite para desenvolvimento)
+-   Python 3.x
+-   Django 3.x
+-   PostgreSQL (ou SQLite para desenvolvimento)
 
 ### Instalação
 
 1. Clone o repositório:
-   ```bash
-   git clone git@github.com:AllanFelipeReis/movie-management-system.git
-   cd movie-management-system
-   ```
-
+    ```bash
+    git clone git@github.com:AllanFelipeReis/movie-management-system.git
+    cd movie-management-system
+    ```
 2. Instale as dependências:
-   ```bash
-    pip install -r requirements.txt
-   ```
-3. Crie o banco de dados e execute as migrações:
-   ```bash
-    python manage.py makemigrations
-    python manage.py migrate
-   ```
-4. Crie um superusuário:
 
-   ```bash
-    python manage.py createsuperuser
-   ```
+    ```bash
+     pip install -r requirements.txt
+    ```
 
-5. Execute o servidor de desenvolvimento:
-   ```bash
-    python manage.py runserver
-   ```
+3. Acesse o diretório do projeto:
+
+    ```bash
+     cd data_project
+    ```
+
+4. Configure o arquivo `.env` com as informações da API do TMDb:
+
+5. Crie o banco de dados e execute as migrações:
+    ```bash
+     python manage.py makemigrations
+     python manage.py migrate
+    ```
+6. Crie um superusuário:
+
+    ```bash
+     python manage.py createsuperuser
+    ```
+
+7. Execute o servidor de desenvolvimento:
+    ```bash
+     python manage.py runserver
+    ```
 
 ### Executando os Testes
 
 1. Para executar os testes, use o seguinte comando:
-   ```bash
-   python manage.py test
-   ```
+    ```bash
+    python manage.py test
+    ```
 
 ## Funcionalidade de Soft Delete
 
-- Excluir: Quando você chama `delete()` em um `Movie` ou `Genre`, o objeto não será removido do banco de dados. Em vez disso, ele será marcado como `is_deleted=True`.
+-   Excluir: Quando você chama `delete()` em um `Movie` ou `Genre`, o objeto não será removido do banco de dados. Em vez disso, ele será marcado como `is_deleted=True`.
 
-- Restaurar: Você pode restaurar um objeto excluído usando o método `restore()`.
+-   Restaurar: Você pode restaurar um objeto excluído usando o método `restore()`.
 
 ## Integração com API
 
@@ -94,23 +103,23 @@ Este projeto inclui um comando personalizado para carregar dados de filmes a par
 
 3. **Executar o comando**:
 
-   Para executar o comando e carregar os dados, use o seguinte comando:
+    Para executar o comando e carregar os dados, use o seguinte comando:
 
-   ```bash
-   python manage.py load_data
-   ```
+    ```bash
+    python manage.py load_data
+    ```
 
 ## Estrutura do CSV
 
 O arquivo movie.csv deve conter as seguintes colunas:
 
-- `id`: ID do filme.
-- `title`: Título do filme.
-- `release_date`: Data de lançamento.
-- `overview`: Descrição do filme.
-- `popularity`: Popularidade.
-- `vote_average`: Média de votos.
-- `vote_count`: Contagem de votos.
+-   `id`: ID do filme.
+-   `title`: Título do filme.
+-   `release_date`: Data de lançamento.
+-   `overview`: Descrição do filme.
+-   `popularity`: Popularidade.
+-   `vote_average`: Média de votos.
+-   `vote_count`: Contagem de votos.
 
 ## Estrutura e Personalização do Django Admin
 
@@ -127,32 +136,32 @@ O projeto inclui uma customização completa da interface do Django Admin para m
 
 A tabela de filmes exibe informações chave e facilita a busca e filtragem com as seguintes customizações:
 
-- **Colunas Exibidas**:
+-   **Colunas Exibidas**:
 
-  - `title`: O título do filme.
-  - `get_year`: O ano de lançamento do filme (extraído do campo `release_date`).
-  - `get_genres`: A lista de gêneros associados ao filme.
-  - `show_poster`: Exibe uma miniatura do pôster do filme.
-  - `created_at`: Data de criação do registro no sistema.
-  - `updated_at`: Data da última atualização do registro.
+    -   `title`: O título do filme.
+    -   `get_year`: O ano de lançamento do filme (extraído do campo `release_date`).
+    -   `get_genres`: A lista de gêneros associados ao filme.
+    -   `show_poster`: Exibe uma miniatura do pôster do filme.
+    -   `created_at`: Data de criação do registro no sistema.
+    -   `updated_at`: Data da última atualização do registro.
 
-- **Filtros Disponíveis**:
+-   **Filtros Disponíveis**:
 
-  - `release_date`: Permite filtrar filmes pela data de lançamento.
-  - `genre__name`: Permite filtrar filmes pelos gêneros (associações do tipo Many-to-Many).
+    -   `release_date`: Permite filtrar filmes pela data de lançamento.
+    -   `genre__name`: Permite filtrar filmes pelos gêneros (associações do tipo Many-to-Many).
 
-- **Campos de Busca**:
-  - `title`: Permite buscar filmes pelo título.
+-   **Campos de Busca**:
+    -   `title`: Permite buscar filmes pelo título.
 
 #### 2. Model: Gêneros (Genre)
 
 A tabela de gêneros exibe informações básicas sobre os gêneros cadastrados.
 
-- **Colunas Exibidas**:
+-   **Colunas Exibidas**:
 
-  - `name`: O nome do gênero.
-  - `created_at`: Data de criação do registro.
-  - `updated_at`: Data da última atualização do registro.
+    -   `name`: O nome do gênero.
+    -   `created_at`: Data de criação do registro.
+    -   `updated_at`: Data da última atualização do registro.
 
-- **Campos de Busca**:
-  - `name`: Permite buscar gêneros pelo nome.
+-   **Campos de Busca**:
+    -   `name`: Permite buscar gêneros pelo nome.
