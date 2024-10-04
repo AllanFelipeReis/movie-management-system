@@ -106,4 +106,4 @@ class Command(BaseCommand):
         for genre_data in genres:
             genre, _ = Genre.objects.get_or_create(name=genre_data['name'])
             movie.genre.add(genre)
-        logger.info(f"Gêneros salvos para o filme {movie.title}")
+        logger.info(f"Gêneros salvos para o filme {movie.id_the_movie}")
